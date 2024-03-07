@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/gusaul/grpcox/core"
-	"github.com/gusaul/grpcox/handler"
+	"github.com/i-pul/grpcox/core"
+	"github.com/i-pul/grpcox/handler"
 )
 
 func main() {

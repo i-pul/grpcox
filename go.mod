@@ -1,4 +1,4 @@
-module github.com/gusaul/grpcox
+module github.com/i-pul/grpcox
 
 go 1.12
 
