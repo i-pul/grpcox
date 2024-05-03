@@ -4,15 +4,18 @@ const ctxMetadataTable = $('#ctx-metadata-table');
 // new row for each context being added
 const newTr = `
     <tr>
-        <td>
-          <span class="table-remove">
-            <button type="button" class="btn btn-danger btn-rounded btn-sm my-0">
-              <i class="fa fa-times"></i>
-            </button>
+        <td class="text-center">
+          <span>
+            <input class="ctx-metadata-input-field-active checkbox-xl" type="checkbox" #checked>
           </span>
         </td>
-        <td class="ctx-metadata-input-field pt-3-half" contenteditable="true"></td>
-        <td class="ctx-metadata-input-field pt-3-half" contenteditable="true"></td>
+        <td class="ctx-metadata-input-field-key pt-3-half" contenteditable="true">#key</td>
+        <td class="ctx-metadata-input-field-value pt-3-half" contenteditable="true">#val</td>
+        <td class="text-center">
+          <span class="table-remove">
+              <a>&nbsp; <i class="fa fa-trash"></i> &nbsp;</a>
+          </span>
+        </td>
      </tr>`;
 
 // helper variable to contains all of the context metadata input
@@ -24,12 +27,13 @@ let ctxUse = false;
 // ctx metadata event listener
 (function () {
     // add event listener on ctx metadata checkbox
-    const ctxMetadataSwitch = document.getElementById("ctx-metadata-switch");
-    ctxMetadataSwitch.addEventListener("change", function(event) {
+    // todo: change how data stored
+    // const ctxMetadataSwitch = document.getElementById("ctx-metadata-switch");
+    $("#ctx-metadata-switch").change(function (event) {
         const { checked } = event.target;
         ctxUse = checked;
         toggleDisplayCtxMetadataTable(checked);
-    });
+    })
 
     // remove for each row in ctx metadata table
     ctxMetadataTable.on('click', '.table-remove', function () {
@@ -38,7 +42,7 @@ let ctxUse = false;
 
     // add new row
     ctxMetadataTable.on('click', '.table-add', () => {
-        $('tbody').append(newTr);
+        addNewMetadataTableRow(true, "", "");
     });
 
     // only allow any paste action with plain text
@@ -49,6 +53,10 @@ let ctxUse = false;
         const text = (e.originalEvent || e).clipboardData.getData('text/plain');
         // insert text manually
         document.execCommand("insertHTML", false, text);
+    });
+
+    ctxMetadataTable.focusout(function (){
+        metadataTableToEditorFormat();
     });
 
 }());
@@ -62,3 +70,69 @@ function toggleDisplayCtxMetadataTable(show) {
     protoInput.removeAttribute("style");
     protoInput.style.cssText = style;
 }
+
+function addNewMetadataTableRow(isActive,key,val) {
+    var newRow = newTr;
+    newRow = newRow.replace("#checked", (isActive? "checked": ""));
+    newRow = newRow.replace("#key", key);
+    newRow = newRow.replace("#val", val);
+    $('tbody').append(newRow);
+}
+
+function metadataTableToEditorFormat() {
+    // translate table to editor
+    var metadataArr = $('#ctx-metadata-table').find("tbody").find("tr").map(function() {
+        var $row = $(this);
+        var isActive = $row.find('.ctx-metadata-input-field-active').prop("checked") ? "": "//";
+        var key = $row.find('.ctx-metadata-input-field-key').text().trim();
+        var value = $row.find('.ctx-metadata-input-field-value').text().trim();
+        if (key != "") {
+            return isActive+key+":"+value;
+        }
+    }).get();
+
+    metadataEditor = ace.edit("metadata-editor");
+    metadataEditor.setValue(metadataArr.join("\n"));
+}
+
+function metadataEditortoTableFormat() {
+    // translate table to editor
+    metadataEditor = ace.edit("metadata-editor");
+    metadataString = metadataEditor.getValue();
+
+    $("#ctx-metadata-table").find("tbody").empty();
+
+    metadataArr = metadataString.split("\n");
+    metadataArr.forEach(function (item) {
+        var arr = item.split(":").map(i => i.trim());
+
+        var key = arr[0];
+        var isActive = true;
+        if ((/^\/\//).test(arr[0])) {
+            isActive = false;
+            key = key.replace(/^\/\//, "");
+        }
+
+        var value = arr.length > 1? arr[1] : "";
+        if (key != "") {
+            addNewMetadataTableRow(isActive, key, value);
+        }
+    })
+}
+
+
+$("#metadata-bulk-edit").click(function(){
+    // translate table to editor
+    metadataTableToEditorFormat();
+
+    $("#ctx-metadata-editor").show();
+    $("#ctx-metadata-table").hide();
+
+});
+$("#metadata-table-edit").click(function(){
+    // translate editor to table
+    metadataEditortoTableFormat();
+
+    $("#ctx-metadata-editor").hide();
+    $("#ctx-metadata-table").show();
+});

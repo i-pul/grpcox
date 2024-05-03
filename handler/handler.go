@@ -72,22 +72,7 @@ func (h *Handler) getLists(w http.ResponseWriter, r *http.Request) {
 
 	// treat metadata as reflection headers
 	metadataHeader := r.Header.Get("Metadata")
-	metadataArr := strings.Split(metadataHeader, ",")
-
-	// construct array of strings with "key: value" form to be used in the reflection headers
-	var metadata []string
-	var metadataStr string
-	for i, m := range metadataArr {
-		i += 1
-		if isEven := i%2 == 0; isEven {
-			metadataStr = metadataStr + m
-			metadata = append(metadata, metadataStr)
-			metadataStr = ""
-			continue
-		}
-		metadataStr = fmt.Sprintf("%s:", m)
-	}
-
+	metadata := strings.Split(metadataHeader, ",")
 	h.g.SetReflectHeaders(metadata...)
 
 	res, err := h.g.GetResource(context.Background(), host, !useTLS, restart)
@@ -243,21 +228,7 @@ func (h *Handler) invokeFunction(w http.ResponseWriter, r *http.Request) {
 
 	// context metadata
 	metadataHeader := r.Header.Get("Metadata")
-	metadataArr := strings.Split(metadataHeader, ",")
-
-	// construct array of string with "key: value" form to satisfy grpcurl MetadataFromHeaders
-	var metadata []string
-	var metadataStr string
-	for i, m := range metadataArr {
-		i += 1
-		if isEven := i%2 == 0; isEven {
-			metadataStr = metadataStr + m
-			metadata = append(metadata, metadataStr)
-			metadataStr = ""
-			continue
-		}
-		metadataStr = fmt.Sprintf("%s:", m)
-	}
+	metadata := strings.Split(metadataHeader, ",")
 
 	// get param
 	result, timer, err := res.Invoke(context.Background(), metadata, funcName, r.Body)

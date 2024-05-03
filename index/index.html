@@ -87,35 +87,38 @@
 
         <div class="input-group" id="ctx-metadata-input" style="display: none">
           <br>
-          <div id="ctx-metadata-table" class="table-editable">
-            <table class="table table-bordered">
-              <thead>
-                <tr>
-                  <th class="text-start" style="width: 10%"></th>
-                  <th class="text-start" style="width: 20%">Key</th>
-                  <th class="text-start" style="width: 70%">Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <span class="table-remove">
-                      <button type="button" class="btn btn-danger btn-rounded btn-sm my-0">
-                        <i class="fa fa-times"></i>
-                      </button>
-                    </span>
-                  </td>
-                  <td class="ctx-metadata-input-field pt-3-half" contenteditable="true"></td>
-                  <td class="ctx-metadata-input-field pt-3-half" contenteditable="true"></td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="input-group-append">
-              <span class="table-add">
-                <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
+          <div class="table-editable">
+            <div id="ctx-metadata-table">
+              <span>
+                <button class="btn btn-grey btn-rounded btn-sm" id="metadata-bulk-edit"><i class="fa fa-edit"></i>&nbsp;&nbsp;Bulk Edit</button>
+              </span>
+              <table class="table table-bordered table-sm">
+                <thead>
+                  <tr>
+                    <th class="text-start" style="width: 5%"></th>
+                    <th class="text-start" style="width: 20%">Key</th>
+                    <th class="text-start" style="width: 70%">Value</th>
+                    <th class="text-start" style="width: 5%"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+              <span class="input-group-append table-add">
+                <button type="button" class="btn btn-info btn-sm ">
                   <i class="fa fa-plus"></i>
                 </button>
               </span>
+            </div>
+          </div>
+          <div id="ctx-metadata-editor" style="display: none">
+            <span>
+              <button class="btn btn-grey btn-rounded btn-sm" id="metadata-table-edit"><i class="fa fa-edit"></i>&nbsp;&nbsp;Key Value Edit</button>
+            </span>
+            <div class="card" >
+              <div class="card-body">
+                  <pre id="metadata-editor"></pre>
+              </div>
             </div>
           </div>
         </div>

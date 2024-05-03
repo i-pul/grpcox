@@ -345,3 +345,7 @@ circle {
         opacity: 1;
     }
 }
+
+.checkbox-xl {
+    scale: 1.2;
+}
