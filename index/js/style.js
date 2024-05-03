@@ -1,4 +1,4 @@
-var target, use_tls, editor;
+var target, use_tls;
 
 $('#get-services').click(function () {
 
@@ -18,10 +18,8 @@ $('#get-services').click(function () {
     }
 
     // use metadata if there is any
-    ctxArr = [];
-    $(".ctx-metadata-input-field").each(function (index, val) {
-        ctxArr.push($(val).text())
-    });
+    metadataEditor = ace.edit("metadata-editor");
+    var metadataString = metadataEditor.getValue();
 
     // determine whether the proto connection will use local proto or not
     const use_proto = $('#local-proto').is(":checked");
@@ -58,7 +56,7 @@ $('#get-services').click(function () {
             $('#choose-service').hide();
             xhr.setRequestHeader('use_tls', use_tls);
             if (ctxUse) {
-                xhr.setRequestHeader('Metadata', ctxArr);
+                xhr.setRequestHeader('Metadata', metadataString.split("\n"));
             }
             $(this).html("Loading...");
             show_loading();
@@ -135,7 +133,7 @@ $('#select-function').change(function () {
                 return;
             }
 
-            generate_editor(res.data.template);
+            set_editor_value(res.data.template, "editor");
             $("#schema-proto").html(PR.prettyPrintOne(res.data.schema));
             $('#body-request').show();
         },
@@ -154,16 +152,17 @@ $('#select-function').change(function () {
 $('#invoke-func').click(function () {
 
     // use metadata if there is any
-    ctxArr = [];
-    $(".ctx-metadata-input-field").each(function (index, val) {
-        ctxArr.push($(val).text())
-    });
+    metadataEditor = ace.edit("metadata-editor");
+    var metadataString = metadataEditor.getValue();
 
     var func = $('#select-function').val();
     if (func == "") {
         return false;
     }
+    editor = ace.edit("editor");
+
     var body = editor.getValue();
+
     var button = $(this).html();
     $.ajax({
         url: "server/" + target + "/function/" + func + "/invoke",
@@ -192,7 +191,7 @@ $('#invoke-func').click(function () {
             $('#resp-tab').hide();
             xhr.setRequestHeader('use_tls', use_tls);
             if (ctxUse) {
-                xhr.setRequestHeader('Metadata', ctxArr);
+                xhr.setRequestHeader('Metadata', metadataString.split("\n"));
             }
             $(this).html("Loading...");
             show_loading();
@@ -216,13 +215,8 @@ $("#resp-tab div button").click(function () {
     }
 });
 
-function generate_editor(content) {
-    if (editor) {
-        editor.setValue(content);
-        return true;
-    }
-    $("#editor").html(content);
-    editor = ace.edit("editor");
+function generate_editor(id) {
+    editor = ace.edit(id);
     editor.setOptions({
         maxLines: Infinity
     });
@@ -230,6 +224,12 @@ function generate_editor(content) {
     editor.setTheme("ace/theme/github");
     editor.session.setMode("ace/mode/json");
     editor.renderer.setShowGutter(false);
+}
+
+function set_editor_value(content, id) {
+    editor = ace.edit(id);
+    editor.setValue(content);
+    return true;
 }
 
 function get_valid_target() {
@@ -323,3 +323,4 @@ function refreshToolTip() {
 $(document).ready(function () {
     refreshConnCount();
 });
+

@@ -1,4 +1,4 @@
-$('#save-request').click(function(){
+$('#save-request').click(function () {
     let requestName = document.getElementById("input-request-name").value;
     if (requestName === "") {
         alert("request name is require")
@@ -43,25 +43,37 @@ function getReqResData() {
     const selectFunction = document.getElementById("select-function").value;
     const responseHTML = document.getElementById("json-response").innerHTML;
     const schemaProtoHTML = document.getElementById("schema-proto").innerHTML;
+    const useMetadata = document.getElementById("ctx-metadata-switch").checked;
+
     editor = ace.edit("editor");
-    return  {
-        server_target:serverTarget,
-        selected_service:selectService,
-        selected_function:selectFunction,
-        raw_request:editor.getValue(),
-        response_html:responseHTML,
-        schema_proto_html:schemaProtoHTML,
+    metadataEditor = ace.edit("metadata-editor");
+    return {
+        server_target: serverTarget,
+        selected_service: selectService,
+        selected_function: selectFunction,
+        raw_request: editor.getValue(),
+        response_html: responseHTML,
+        schema_proto_html: schemaProtoHTML,
+        use_metadata: useMetadata,
+        metadata: metadataEditor.getValue(),
     }
 }
 
 function setReqResData(data) {
     $('#server-target').val(data.server_target);
     target = data.server_target;
-    $("#select-service").html(new Option(data.selected_service, data.selected_service,true,true));
+    $("#select-service").html(new Option(data.selected_service, data.selected_service, true, true));
     $('#choose-service').show();
-    $("#select-function").html(new Option(data.selected_function.substr(data.selected_service.length), data.selected_function,true,true));
+    $("#select-function").html(new Option(data.selected_function.substr(data.selected_service.length), data.selected_function, true, true));
     $('#choose-function').show();
-    generate_editor(data.raw_request);
+    set_editor_value(data.raw_request, "editor");
+    if (data.use_metadata) {
+        set_editor_value(data.metadata, "metadata-editor");
+        metadataEditortoTableFormat();
+    }
+
+    $('#ctx-metadata-switch').prop("checked", data.use_metadata ? true : false).trigger("change");
+
     $('#body-request').show();
     $('#schema-proto').html(data.schema_proto_html);
     $('#json-response').html(data.response_html);
@@ -69,7 +81,7 @@ function setReqResData(data) {
 }
 
 function resetReqResData() {
-    target="";
+    target = "";
     $('#choose-service').hide();
     $('#choose-function').hide();
     $('#body-request').hide();
@@ -82,11 +94,11 @@ async function renderRequestList() {
 
     const nameList = await getAllRequestKey();
 
-    nameList.forEach(function (item){
+    nameList.forEach(function (item) {
         let node = document.createElement("li")
-        node.classList.add("list-group-item","request-list")
-        node.setAttribute("request-name",item)
-        node.addEventListener("click", function(el){
+        node.classList.add("list-group-item", "request-list")
+        node.setAttribute("request-name", item)
+        node.addEventListener("click", function (el) {
             updateRequestView(el.target.children[1])
         });
         node.innerHTML = `
@@ -97,14 +109,19 @@ async function renderRequestList() {
     })
 }
 
-function removeRequestSelectedClass(){
+function renderEditor(){
+    generate_editor("editor")
+    generate_editor("metadata-editor")
+}
+
+function removeRequestSelectedClass() {
     const elems = document.querySelectorAll(".request-list");
-    [].forEach.call(elems, function(el) {
+    [].forEach.call(elems, function (el) {
         el.classList.remove("selected");
     });
 }
 
-function getActiveRequestListName(){
+function getActiveRequestListName() {
     const elems = document.querySelectorAll(".request-list");
     for (let i = 0; i < elems.length; i++) {
         const e = elems[i]
@@ -117,7 +134,7 @@ function getActiveRequestListName(){
 
 function setServerTargetActive() {
     const elems = document.querySelectorAll('[for="server-target"]');
-    [].forEach.call(elems, function(el) {
+    [].forEach.call(elems, function (el) {
         el.classList.add("active");
     });
 }
@@ -138,9 +155,9 @@ function updateRequestView(elm) {
 
 function removeRequest(elm) {
     const requestName = elm.parentElement.lastElementChild.innerText;
-    deleteRequest(requestName).then(()=>{
+    deleteRequest(requestName).then(() => {
         window.location.reload()
-    }).catch((error)=>{
+    }).catch((error) => {
         alert(error)
     })
 }
@@ -148,15 +165,16 @@ function removeRequest(elm) {
 function search(elm) {
     const li = document.querySelectorAll(".request-list")
     li.forEach(function (el) {
-        if (el.getAttribute("request-name").toLowerCase().includes(elm.value.toLowerCase())){
+        if (el.getAttribute("request-name").toLowerCase().includes(elm.value.toLowerCase())) {
             el.style.display = ""
-        }else{
+        } else {
             el.style.display = "none"
         }
 
     })
 }
 
-$(document).ready(function(){
+$(document).ready(function () {
     renderRequestList()
+    renderEditor()
 });
