@@ -27,8 +27,6 @@ let ctxUse = false;
 // ctx metadata event listener
 (function () {
     // add event listener on ctx metadata checkbox
-    // todo: change how data stored
-    // const ctxMetadataSwitch = document.getElementById("ctx-metadata-switch");
     $("#ctx-metadata-switch").change(function (event) {
         const { checked } = event.target;
         ctxUse = checked;
