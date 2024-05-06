@@ -165,7 +165,7 @@ $('#invoke-func').click(function () {
 
     var button = $(this).html();
     $.ajax({
-        url: "server/" + target + "/function/" + func + "/invoke",
+        url: "server/" + get_valid_target() + "/function/" + func + "/invoke",
         global: true,
         method: "POST",
         data: body,
