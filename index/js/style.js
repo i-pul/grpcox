@@ -175,8 +175,8 @@ $('#invoke-func').click(function () {
                 alert(res.error);
                 return;
             }
-            $("#json-response").html(PR.prettyPrintOne(res.data.result));
-            $("#json-resp-post").html(PR.prettyPrintOne(res.data.post_script_result));
+            set_editor_value(res.data.result, "json-response-editor");
+            set_editor_value(res.data.post_script_result, "json-resp-post-editor");
             $("#timer-resp span").html(res.data.timer);
             $('#resp-tab').show();
             if (res.data.post_script_result == "") {
@@ -215,20 +215,22 @@ $("#resp-tab div button").click(function () {
     }
 });
 
-function generate_editor(id) {
+function generate_editor(id, showGutter, readOnly) {
     editor = ace.edit(id);
     editor.setOptions({
-        maxLines: Infinity
+        maxLines: Infinity,
+        readOnly: readOnly,
     });
     editor.renderer.setScrollMargin(10, 10, 10, 10);
-    editor.setTheme("ace/theme/github");
+    editor.setTheme("ace/theme/jsoneditor");
     editor.session.setMode("ace/mode/json");
-    editor.renderer.setShowGutter(false);
+    editor.renderer.setShowGutter(showGutter);
 }
 
 function set_editor_value(content, id) {
     editor = ace.edit(id);
     editor.setValue(content);
+    editor.clearSelection();
     return true;
 }
 
