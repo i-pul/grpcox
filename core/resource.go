@@ -267,6 +267,10 @@ func (r *Resource) Invoke(ctx context.Context, metadata []string, symbol string,
 }
 
 func (r *Resource) PostScript(ctx context.Context, symbol, resp string) string {
+	if len(r.postScriptsSvc) == 0 && strings.LastIndex(symbol, ".") > 0 {
+		r.loadPostScriptsServices()
+		r.loadPostScriptsMethods(symbol[:strings.LastIndex(symbol, ".")])
+	}
 	cfgs, ok := r.postScriptsMtd[symbol]
 	if !ok {
 		return ""
