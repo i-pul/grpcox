@@ -110,8 +110,10 @@ async function renderRequestList() {
 }
 
 function renderEditor(){
-    generate_editor("editor")
-    generate_editor("metadata-editor")
+    generate_editor("editor", true);
+    generate_editor("metadata-editor");
+    generate_editor("json-response-editor", true, true);
+    generate_editor("json-resp-post-editor", true, true);
 }
 
 function removeRequestSelectedClass() {
